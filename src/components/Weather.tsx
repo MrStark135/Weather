@@ -1,10 +1,10 @@
 import kelvinToCelsius from "@/utils/kelvinToCelsius"
-import utcToLocal from "@/utils/utcToLocal"
 import { useQuery } from "@tanstack/react-query"
 import { BsPersonStanding } from "react-icons/bs"
 import { FaTemperatureHalf, FaWind } from "react-icons/fa6"
 import { WiHumidity } from "react-icons/wi"
 import WeatherIcon from "./WeatherIcon"
+import { useEffect } from "react"
 
 type WeatherResponse = {
 	coord: {
@@ -52,30 +52,33 @@ type WeatherResponse = {
 }
 
 
-export default function Weather() {
-	const { isPending, error, data, isFetching } = useQuery<WeatherResponse>({
+export default function Weather({searchCity} : {searchCity: string}) {
+	
+	const { isPending, error, data, refetch } = useQuery<WeatherResponse>({
 		queryKey: ['weatherData'],
 		queryFn: async () => {
-		const response = await fetch(
-			`https://api.openweathermap.org/data/2.5/weather?q=London&appid=${process.env.NEXT_PUBLIC_API_KEY}`
-		)
-		return await response.json()
+			const response = await fetch(
+				`https://api.openweathermap.org/data/2.5/weather?q=${searchCity}&appid=${process.env.NEXT_PUBLIC_API_KEY}`
+			)
+			return await response.json()
 		},
-	})
+	});
+	// when searchCity changes (as on submit event on the SearchBar) refetch
+	useEffect(() => {
+		refetch();
+	}, [searchCity, refetch]);
 
+	// handle other states
 	if (isPending) return (
 		<div className="flex min-h-30 items-center justify-center">
 			<div className="animate-bounce">Loading...</div>
 		</div>
 	)
-
 	if (error) return (
 		<div className="flex items-center justify-between">
 			{'An error has occurred: ' + error.message}
 		</div>
 	)
-
-	// console.log(data);
 	
 	return (
 		<div className="w-full flex flex-col gap-2">
@@ -98,7 +101,7 @@ export default function Weather() {
 				{/* additional weather info */}
 				<div id="weatherAdd" className="flex gap-4 text-xl">
 					<div className="flex flex-col justify-center gap-3 h-full p-5 rounded-sm bg-gray-350">
-						<div>Feels like:</div>
+						<div className="min-w-28">Feels like:</div>
 						<div className="flex gap-3 items-center justify-between">
 							<div>{kelvinToCelsius(data.main.feels_like)}°C</div>
 							<div className="flex">

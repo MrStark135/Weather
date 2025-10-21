@@ -3,6 +3,7 @@ import utcToLocal from "@/utils/utcToLocal"
 import { useQuery } from "@tanstack/react-query"
 import { Line } from "react-chartjs-2"
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip } from 'chart.js'; 
+import { useEffect } from "react";
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip);
 
@@ -63,23 +64,28 @@ type ForecastResponse = {
 	}
 }
 
-export default function Forecast() {
-	const { isPending, error, data, isFetching } = useQuery<ForecastResponse>({
+export default function Forecast({searchCity} : {searchCity: string}) {
+	
+	const { isPending, error, data, refetch } = useQuery<ForecastResponse>({
 		queryKey: ['forecastData'],
 		queryFn: async () => {
-		const response = await fetch(
-			`https://api.openweathermap.org/data/2.5/forecast?q=London&appid=${process.env.NEXT_PUBLIC_API_KEY}&cnt=40`
-		)
-		return await response.json()
+			const response = await fetch(
+				`https://api.openweathermap.org/data/2.5/forecast?q=${searchCity}&appid=${process.env.NEXT_PUBLIC_API_KEY}&cnt=40`
+			)
+			return await response.json()
 		},
-	})
+	});
+	// when searchCity changes (as on submit event on the SearchBar) refetch
+	useEffect(() => {
+		refetch();
+	}, [searchCity, refetch]);
 
+	// handle other states 
 	if (isPending) return (
 		<div className="flex min-h-40 items-center justify-center">
 			<div className="animate-bounce">Loading...</div>
 		</div>
 	)
-
 	if (error) return (
 		<div className="flex items-center justify-between">
 			{'An error has occurred: ' + error.message}
@@ -88,9 +94,9 @@ export default function Forecast() {
 
 	// Group forecasts by day
 	const grouped: { [date: string]: Forecast[] } = {};
-	let firstDate: string = data.list[0].dt_txt.split(' ')[0];
-	let lastDate: string | undefined = data.list.pop()?.dt_txt.split(' ')[0];
-	data.list.forEach((forecast, i) => {
+	const firstDate: string = data.list[0].dt_txt.split(' ')[0];
+	const lastDate: string | undefined = data.list.pop()?.dt_txt.split(' ')[0];
+	data.list.forEach((forecast) => {
 		const date = forecast.dt_txt.split(' ')[0];
 		if (date == firstDate || date == lastDate) return;
 		if (!grouped[date]) grouped[date] = [];
@@ -150,7 +156,7 @@ export default function Forecast() {
 													suggestedMax: 30,
 													suggestedMin: 10,
 													ticks: {
-														callback: (value, index, tick) => { return value+"°C" },
+														callback: (value) => { return value+"°C" },
 														stepSize: 2
 													}
 												}
@@ -160,8 +166,8 @@ export default function Forecast() {
 												labels: forecasts.map((forecast) => {
 													return (
 														(():string => {
-															let time = utcToLocal(forecast.dt, data.city.timezone).split(' ')[1].slice(0, -3);
-															let AM_PM = utcToLocal(forecast.dt, data.city.timezone).split(' ')[2];
+															const time = utcToLocal(forecast.dt, data.city.timezone).split(' ')[1].slice(0, -3);
+															const AM_PM = utcToLocal(forecast.dt, data.city.timezone).split(' ')[2];
 															return time + " " + AM_PM;
 														})()
 													)

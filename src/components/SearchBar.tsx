@@ -17,7 +17,7 @@ export default function SearchBar(props: Props){
 			<input
 			onChange={props.onChange}
 			className="border-2 border-gray-300 focus:border-white h-full rounded-s-sm p-1 focus:outline-0"
-			type="text" placeholder="Search city"/>
+			type="text" placeholder="Search city" value={props.value}/>
 			<button className="border-2 border-gray-300 
 			focus:bg-white focus:text-gray-500 focus:border-white 
 			hover:bg-gray-400
