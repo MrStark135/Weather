@@ -66,9 +66,10 @@ type ForecastResponse = {
 
 export default function Forecast({searchCity} : {searchCity: string}) {
 	
-	const { isPending, error, data, refetch } = useQuery<ForecastResponse>({
+	const { isPending, error, data, isFetching, refetch } = useQuery<ForecastResponse>({
 		queryKey: ['forecastData'],
 		queryFn: async () => {
+
 			const response = await fetch(
 				`https://api.openweathermap.org/data/2.5/forecast?q=${searchCity}&appid=${process.env.NEXT_PUBLIC_API_KEY}&cnt=40`
 			)
@@ -81,14 +82,19 @@ export default function Forecast({searchCity} : {searchCity: string}) {
 	}, [searchCity, refetch]);
 
 	// handle other states 
-	if (isPending) return (
-		<div className="flex min-h-40 items-center justify-center">
+	if (isPending || isFetching) return (
+		<div className="flex items-center justify-center bg-emerald-200 w-full rounded-sm min-h-40">
 			<div className="animate-bounce">Loading...</div>
 		</div>
 	)
-	if (error) return (
-		<div className="flex items-center justify-between">
+	else if (error) return (
+		<div className="flex items-center justify-center bg-emerald-200 w-full rounded-sm min-h-40">
 			{'An error has occurred: ' + error.message}
+		</div>
+	)
+	else if (data?.list == undefined) return (
+		<div className="flex items-center justify-center bg-emerald-200 w-full rounded-sm min-h-40">
+			{'An error has occurred: ' + 'partial fetch, missing data, reload page:('}
 		</div>
 	)
 

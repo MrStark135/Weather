@@ -54,7 +54,7 @@ type WeatherResponse = {
 
 export default function Weather({searchCity} : {searchCity: string}) {
 	
-	const { isPending, error, data, refetch } = useQuery<WeatherResponse>({
+	const { isPending, error, data, isFetching, refetch } = useQuery<WeatherResponse>({
 		queryKey: ['weatherData'],
 		queryFn: async () => {
 			const response = await fetch(
@@ -69,16 +69,21 @@ export default function Weather({searchCity} : {searchCity: string}) {
 	}, [searchCity, refetch]);
 
 	// handle other states
-	if (isPending) return (
-		<div className="flex min-h-30 items-center justify-center">
+	if (isPending || isFetching) return (
+		<div className="flex items-center justify-center bg-emerald-200 w-full rounded-sm min-h-40">
 			<div className="animate-bounce">Loading...</div>
 		</div>
 	)
 	if (error) return (
-		<div className="flex items-center justify-between">
+		<div className="flex items-center justify-center bg-emerald-200 w-full rounded-sm min-h-40">
 			{'An error has occurred: ' + error.message}
 		</div>
 	)
+	if (data?.sys == undefined) return (
+		<div className="flex items-center justify-center bg-emerald-200 w-full rounded-sm min-h-40">
+			{'An error has occurred: ' + 'partial fetch, missing data, reload page:('}
+		</div>
+	);
 	
 	return (
 		<div className="w-full flex flex-col gap-2">

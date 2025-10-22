@@ -11,8 +11,9 @@ export default function Navbar({setSearchCity}: {setSearchCity: Function}){
 	
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		if (suggestions.length <= 0) {
+		if ((city.length < 3) || (suggestions.length <= 0)) {
 			setSuggestions(['Location not found']);
+			setShowSuggestions(true);
 			return;
 		}
 		setSearchCity(city);
@@ -38,15 +39,14 @@ export default function Navbar({setSearchCity}: {setSearchCity: Function}){
 
 	return (
 		<nav className="shadow-sn sticky top-0 left-0 z-50 bg-blue-500">
-			<div className="h-16 w-full flex justify-between items-center max-w-7xl px-5 mx-auto text-3xl text-white gap-12">
-				<section className="flex justify-between items-center gap-1 min-h-screen">
+			<div id="navbar" className="h-16 w-full flex justify-between items-center px-5 mx-auto text-3xl text-white">
+				<section id="navTitle" className="flex justify-between items-center gap-1 min-h-screen">
 					<TiWeatherSunny className="text-yellow-300 text-5xl"/>
 					<h2 className="font-goorm pl-2">Weather</h2>
 				</section>
-				<section id="navSearch" className="flex items-center gap-2">
-					<MdMyLocation className="opacity-50"/>
+				<section id="navSearch" className="flex w-72 items-center gap-2">
 					<MdOutlineLocationOn className="text-4xl"/>
-					<div className="relative">
+					<div className="relative w-full">
 						<SearchBar
 							value={city}
 							onChange={(e) => {e.preventDefault();handleInputChange(e.target.value)}}
@@ -64,14 +64,14 @@ export default function Navbar({setSearchCity}: {setSearchCity: Function}){
 						/>
 					</div>
 				</section>
-				<section id="navMenu" className="flex items-center">
+				{/* <section id="navMenu" className="flex items-center">
 					<button className="border-2 border-gray-300 
 					focus:bg-white focus:text-gray-500 focus:border-white 
 					hover:bg-gray-400
 					rounded-sm h-full p-1">
 						<RiMenuFill/>
 					</button>
-				</section>
+				</section> */}
 			</div>
 		</nav>
 	)
