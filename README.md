@@ -1,6 +1,12 @@
 # Weather
 
-A simple web app for displaying current weather and forecast
+A simple web app for displaying current weather and forecast. You can search a city or select from dropdown list.
+It's built using Next.js framework, written in Typescript.
+
+## Deployment
+
+This project is also deployed to Github pages using Github actions. You can check it out here:
+[https://mrstark135.github.io/Weather/](https://mrstark135.github.io/Weather/)
 
 ## Getting Started
 
